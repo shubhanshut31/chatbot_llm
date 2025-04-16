@@ -1,0 +1,64 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+    <link rel="icon" href="{% static 'chatbot.svg' %}?v=1" type="image/svg+xml">
+    <style>
+        body {
+            background-color: #343541;
+            .container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+              }
+              
+              .row {
+                display: flex;
+              }
+              
+              .button {
+                padding: 15px 30px; /* Adjust padding for button size */
+                font-size: 24px;
+                margin: 10px; /* Add margin for spacing between buttons */
+                border: none;
+                border-radius: 15px; /* Rounded corners */
+                cursor: pointer; /* Change cursor on hover */
+              }
+              
+              .button:first-child {
+                background-color:rgb(9, 9, 9);
+                color: white;
+              }
+              
+              .button:last-child {
+                background-color:rgb(9, 9, 9);
+                color: white;
+              }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+          <button class="button">Ollama</button>
+          <button class="button">LM Studio</button>
+        </div>
+      </div>
+      
+      <script>
+        document.querySelectorAll('.button').forEach(button => {
+            button.addEventListener('click', () => {
+                const buttonText = button.textContent;
+                if (buttonText === 'Ollama') {
+                    window.location.href = "{% url 'ollama' %}";
+                } else if (buttonText === 'LM Studio') {
+                    window.location.href = "{% url 'lmstudio' %}";
+                }
+            });
+        });
+      </script>
+</body>
+</html>
