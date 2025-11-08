@@ -231,6 +231,32 @@
             animation: typing 1s infinite;
         }
         
+
+        .voice-input-box button {
+        border: none;
+        background: #007bff;
+        color: white;
+        border-radius: 50%;
+        width: 42px;
+        height: 42px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: 0.3s;
+        }
+
+        .voice-input-box button:hover {
+        background: #0056b3;
+        }
+
+        .listening {
+        background: #dc3545 !important;
+        }
+
+        .mic-icon {
+        font-size: 20px;
+        }
         @keyframes typing {
             0%, 100% { opacity: 0.3; }
             50% { opacity: 1; }
@@ -283,11 +309,16 @@
         <div class="input-container">
             <div class="input-box">
                 <textarea id="user-input" placeholder="Send a message..." rows="1"></textarea>
-                <button class="send-button" id="send-button">
+                <div class="voice-input-box">
+                    <button id="micBtn">
+                    🎤
+                </button>
+            </div>
+            <button class="send-button" id="send-button">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                     </svg>
-                </button>
+            </button>
             </div>
             <div class="input-info">
                 Powered by Qwen 2.5 Coder 3B Instruct
@@ -307,6 +338,38 @@
             
             let chatMessages = [];
             let chatId = Date.now().toString();
+            const micBtn = document.getElementById('micBtn');
+            let recognition;
+
+            if ('webkitSpeechRecognition' in window) {
+            recognition = new webkitSpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+
+            micBtn.addEventListener('click', () => {
+                if (micBtn.classList.contains('listening')) {
+                recognition.stop();
+                micBtn.classList.remove('listening');
+                } else {
+                recognition.start();
+                micBtn.classList.add('listening');
+                }
+            });
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                userInput.value = transcript;
+                micBtn.classList.remove('listening');
+            };
+
+            recognition.onerror = (event) => {
+                console.error(event.error);
+                micBtn.classList.remove('listening');
+            };
+            } else {
+            alert("Speech Recognition not supported in this browser.");
+            }
             
             // Get CSRF token for Django
             function getCSRFToken() {
@@ -496,10 +559,7 @@
                         } else {
                             chatHistory.appendChild(historyItem);
                         }
-                        
-                        // Add click event to history item
                         historyItem.addEventListener('click', function() {
-                            // Load chat from stored messages
                             chatContainer.innerHTML = '';
                             welcomeScreen.style.display = 'none';
                             
@@ -509,7 +569,6 @@
                         });
                     }
                     
-                    // Update text to first user message
                     let firstUserMessage = chatMessages.find(msg => msg.role === 'user');
                     if (firstUserMessage) {
                         let truncatedMessage = firstUserMessage.content;
@@ -526,7 +585,7 @@
         })
         .then(response => response.json())
         .then(data => {
-            console.log('Response data:', data); // Add this line
+            console.log('Response data:', data); 
             if (data && data.response){
                 removeTypingIndicator();
                 addMessageToUI('assistant', data.response);
